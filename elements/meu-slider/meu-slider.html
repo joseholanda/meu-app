@@ -1,0 +1,67 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../../bower_components/paper-slider/paper-slider.html">
+
+
+<dom-module id="meu-slider">
+  <style>
+    :host {
+      display: block;
+    }
+    paper-slider{
+      width:100%;
+    }
+  </style>
+  <template>
+    <paper-slider min="1" max="3600" value="{{tempoDaMamada}}"  on-value-change="mudaValor" ></paper-slider><span>{{tempoDaMamadaString}}</span>
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'meu-slider',
+
+    properties: {
+      tempoDaMamada: Object,
+      tempoDaMamadaMinuto : Object,
+      tempoDaMamadaSegundo : Object,
+      tempoDaMamadaString : String
+
+    },
+    created: function() {
+      this.tempoDaMamada = 0;
+      this.tempoDaMamadaMinuto = 0;
+      this.tempoDaMamadaSegundo = 0;
+       this.tempoDaMamadaString = '00:00';
+    },
+
+    mudaValor: function () {
+      this.tempoDaMamadaMinuto  = Math.floor(this.tempoDaMamada / 60);
+
+      this.tempoDaMamadaSegundo = this.tempoDaMamada % 60;
+      /*console.log('tempodaMamada: '+this.tempoDaMamada + ' - segundos:' +segundos);
+      if (segundos == 0) {
+        if (this.tempoDaMamada>this.tempoDaMamadaMinuto)
+          this.tempoDaMamadaMinuto += 1;
+        else
+          this.tempoDaMamadaMinuto -= 1;
+      }
+      this.tempoDaMamadaSegundo = segundos;*/
+
+      this.tempoDaMamadaString = ""+ this.tempoDaMamadaMinuto +":" + this.tempoDaMamadaSegundo;
+      console.log(this.tempoDaMamadaString);
+
+        
+    }
+
+  });
+})();
+</script>
