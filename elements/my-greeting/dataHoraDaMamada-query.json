@@ -1,0 +1,30 @@
+{
+  "aggs":{
+    "messages":{
+      "filters":{
+        "filters":{
+          "mariacecilia":{
+            "term":{
+              "user":"mariacecilia"
+            }
+          },
+          "mariaalice":{
+            "term":{
+              "user":"mariaalice"
+            }
+          }
+        }
+      },
+      "aggs":{
+        "mamadaMensal":{
+          "date_histogram":{
+            "field":"dataHoraDaMamada",
+            "interval":"month",
+            "format":"MM/yyyy",
+            "min_doc_count" : 0
+          }
+        }
+      }
+    }
+  }
+}
