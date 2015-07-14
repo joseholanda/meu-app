@@ -9,19 +9,47 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 -->
 
 <link rel="import" href="../../../bower_components/paper-slider/paper-slider.html">
-
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 
 <dom-module id="meu-slider">
   <style>
     :host {
       display: block;
+      @apply(--layout-vertical);
     }
     paper-slider{
-      width:100%;
+     /* width:100%;*/
+    }
+    .linha {
+      @apply(--layout-horizontal);
+      @apply(--layout-wrap);
+    }
+    h2{
+      color: #ccc;
     }
   </style>
   <template>
-    <paper-slider min="1" max="3600" value="{{tempoDaMamada}}"  on-value-change="mudaValor" ></paper-slider><span>{{tempoDaMamadaString}}</span>
+    <h2>Adicionar mamada</h2>
+    <label>Tempo da mamada:</label> 
+    <div class="linha">
+      <paper-slider min="1" max="60" pin value="{{tempoDaMamada}}" on-value-change="mudaValor"/></paper-slider>
+      <span>{{tempoDaMamadaString}}</span>
+    </div>
+    
+    <label>Mama:</label>
+    <div class="linha">
+        <paper-radio-group >
+          <paper-radio-button name="esquerda">Esquerda</paper-radio-button>
+          <paper-radio-button name="direita">Direita</paper-radio-button>
+        </paper-radio-group>
+    </div>
+    <label>Data:</label>
+    <paper-item>
+      <input type="date" value="{{dataDaMamada}}"/>
+    </paper-item>
   </template>
 </dom-module>
 <script>
@@ -30,36 +58,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'meu-slider',
 
     properties: {
-      tempoDaMamada: Object,
-      tempoDaMamadaMinuto : Object,
-      tempoDaMamadaSegundo : Object,
+      dataDaMamada: Date,
+      tempoDaMamada: Number,
       tempoDaMamadaString : String
 
     },
-    created: function() {
+    domReady: function() {
+      console.log("dom");
+    },
+    ready: function() {
+      this.dataDaMamada = this.formataData(new Date());
       this.tempoDaMamada = 0;
-      this.tempoDaMamadaMinuto = 0;
-      this.tempoDaMamadaSegundo = 0;
-       this.tempoDaMamadaString = '00:00';
+      this.tempoDaMamadaString = '1:00 minuto';
+    },
+
+    formataData: function(data) {
+      
+      var dd = data.getDate();
+      var mm = data.getMonth()+1; //January is 0!
+
+      var yyyy = data.getFullYear();
+      if(dd<10){
+          dd='0'+dd
+      } 
+      if(mm<10){
+          mm='0'+mm
+      } 
+      var data = dd+'/'+mm+'/'+yyyy;
+      return data;
     },
 
     mudaValor: function () {
-      this.tempoDaMamadaMinuto  = Math.floor(this.tempoDaMamada / 60);
-
-      this.tempoDaMamadaSegundo = this.tempoDaMamada % 60;
-      /*console.log('tempodaMamada: '+this.tempoDaMamada + ' - segundos:' +segundos);
-      if (segundos == 0) {
-        if (this.tempoDaMamada>this.tempoDaMamadaMinuto)
-          this.tempoDaMamadaMinuto += 1;
-        else
-          this.tempoDaMamadaMinuto -= 1;
-      }
-      this.tempoDaMamadaSegundo = segundos;*/
-
-      this.tempoDaMamadaString = ""+ this.tempoDaMamadaMinuto +":" + this.tempoDaMamadaSegundo;
-      console.log(this.tempoDaMamadaString);
-
-        
+      this.tempoDaMamadaString = ""+ this.tempoDaMamada +":00 " + (this.tempoDaMamada==1?"minuto": "minutos");
     }
 
   });

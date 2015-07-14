@@ -23,12 +23,10 @@ Element providing solution to no problem in particular.
 
     
     <div id="container" style="width:{{width}}; height:{{height}};"></div>
-    <!--iron-ajax auto id="ajax" url="{{data}}" handle-as="json" on-response="externalDataLoad">
+    <!--iron-ajax auto id="ajax" url="{{data}}" handle-as="json" on-response="handleAjax">
     </iron-ajax-->
 
-     <iron-ajax auto id="ajaxElastic" method="post" url="http://localhost:9200/mamadas/mamada/_search" 
-    body='{"aggs":{"messages":{"filters":{"filters":{"mariacecilia":{"term":{"user":"mariacecilia"}},"mariaalice":{"term":{"user":"mariaalice"}}}},"aggs":{"mamadaMensal":{"date_histogram":{"field":"dataHoraDaMamada","interval":"month","format":"MM/yyyy","min_doc_count" : 0}}}}}}'
-    handle-as="json" on-response="elasticResponse">
+     <iron-ajax auto id="ajaxElastic" method="{{method}}" url='{{url}}' body='{{body}}' handle-as="json" on-response="handleAjax">
     </iron-ajax>
   </template>
 
@@ -43,6 +41,9 @@ Element providing solution to no problem in particular.
        */
       is: 'highcharts-basicline',
       properties: {
+        url: String,
+        body: String,
+        method: String,
         author: String,
         data: Object,
         series: Object,
@@ -59,6 +60,10 @@ Element providing solution to no problem in particular.
       },
       ready: function() {
         console.log("ready");
+        this.tooltip = {crosshairs: true,
+            shared: true};
+        this.width='310px';
+        this.height='400px';
       },
       
       created: function(){
@@ -68,10 +73,7 @@ Element providing solution to no problem in particular.
         this.charttitle = '';
         this.ytitle = '';
         this.subtitle = '';*/
-        this.tooltip = {crosshairs: true,
-            shared: true};
-        this.width='310px';
-        this.height='400px';
+        
         
        /* this.yplotlines = [{
           value: 0,
@@ -115,18 +117,6 @@ Element providing solution to no problem in particular.
           };
         new Highcharts.Chart(options);
       },
-      /*loadData: function() {
-
-        var ajax = this.$.ajax;
-
-        ajax.method = 'POST';
-        ajax.handleAs = 'JSON';
-        ajax.contentType = 'application/json';
-        ajax.params = JSON.stringify(this.queryElastic);
-
-        ajax.go();
-
-      },*/
       loadData: function(){
         console.log("loadData");
         this.parseData(this.data);
@@ -144,9 +134,16 @@ Element providing solution to no problem in particular.
           }
         }
       },
-      elasticResponse: function(e, detail, sender) {
-        var jsonResponse = detail.response;
-        if (jsonResponse.hits.total>0) {
+      handleAjax: function (e, detail, sender) {
+          if (this.body==null) {
+            this.externalDataLoad(detail.response);
+          }else {
+            this.elasticResponse(detail.response);
+          }
+      },
+      elasticResponse: function(response) {
+        var jsonResponse = response;
+        if (jsonResponse!=null && jsonResponse.hits.total>0) {
           var buckets = jsonResponse.aggregations.messages.buckets;
           /*if(Array.isArray(buckets)) {
             
@@ -174,18 +171,15 @@ Element providing solution to no problem in particular.
           this.series = JSON.parse(textJson);
           this.fire('chartDataLoaded', {data: this.series});
           this.drawChart();
-          console.log(textJson);
-          //console.log(jsonResponse);
-          console.log('texto' +JSON.parse(textJson));  
         } else {
           console.log("nenhum dado encontrado...");
         }
         
         
       },
-      externalDataLoad: function(e, detail, sender) {
+      externalDataLoad: function(response) {
         //console.log(detail.response);
-        this.parseData(detail.response);
+        this.parseData(response);
         this.fire('chartDataLoaded', {data: this.series});
         this.drawChart();
       }
