@@ -13,6 +13,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
 
 <dom-module id="meu-slider">
   <style>
@@ -21,7 +24,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       @apply(--layout-vertical);
     }
     paper-slider{
-     /* width:100%;*/
+      width:100%;
     }
     .linha {
       @apply(--layout-horizontal);
@@ -30,26 +33,44 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     h2{
       color: #ccc;
     }
+    .colored {
+      background: #4285f4;
+      color: #fff;
+      width: 250px;
+    }
   </style>
   <template>
+    <iron-ajax id="add" method="put" url="{{url}}" body='{{body}}' on-response="handleAjax"></iron-ajax>
+
     <h2>Adicionar mamada</h2>
-    <label>Tempo da mamada:</label> 
-    <div class="linha">
-      <paper-slider min="1" max="60" pin value="{{tempoDaMamada}}" on-value-change="mudaValor"/></paper-slider>
-      <span>{{tempoDaMamadaString}}</span>
-    </div>
     
+    <label>Tempo da mamada: <span>{{tempoDaMamadaString}}</span></label> 
+    <paper-slider min="1" max="60" pin value="{{tempoDaMamada}}" on-value-change="mudaValor"/></paper-slider>
+    
+    <br/>
     <label>Mama:</label>
-    <div class="linha">
-        <paper-radio-group >
-          <paper-radio-button name="esquerda">Esquerda</paper-radio-button>
-          <paper-radio-button name="direita">Direita</paper-radio-button>
-        </paper-radio-group>
-    </div>
+    <paper-radio-group >
+      <paper-radio-button name="E">Esquerda</paper-radio-button>
+      <paper-radio-button name="D">Direita</paper-radio-button>
+    </paper-radio-group>
+    <br/> 
+
     <label>Data:</label>
-    <paper-item>
-      <input type="date" value="{{dataDaMamada}}"/>
+    <paper-item >
+      <paper-input type="text" value="{{dataDaMamada}}"></paper-input>
     </paper-item>
+
+    <label>Hora de início:</label>
+    <paper-item >
+      <paper-input type="text" value="{{horaDaMamada}}"></paper-input>
+    </paper-item>
+    
+
+    <paper-button raised class="colored" role="button" on-click="adicionarMamada">
+      <paper-ripple></paper-ripple>
+      <iron-icon icon="check"></iron-icon> Adicionar
+    </paper-button>
+
   </template>
 </dom-module>
 <script>
@@ -58,18 +79,23 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'meu-slider',
 
     properties: {
-      dataDaMamada: Date,
+      dataDaMamada: {type:Date,value: new Date()},
+      horaDaMamada: {type:String,value: "19:50"},
       tempoDaMamada: Number,
-      tempoDaMamadaString : String
+      tempoDaMamadaString : String,
+      url:{type:String,value:"http://localhost:9200/mamadas/mamada/"},
+      body: String
 
     },
     domReady: function() {
       console.log("dom");
     },
     ready: function() {
+      console.log("-"+this.dataDaMamada)
       this.dataDaMamada = this.formataData(new Date());
       this.tempoDaMamada = 0;
       this.tempoDaMamadaString = '1:00 minuto';
+
     },
 
     formataData: function(data) {
@@ -90,6 +116,18 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     mudaValor: function () {
       this.tempoDaMamadaString = ""+ this.tempoDaMamada +":00 " + (this.tempoDaMamada==1?"minuto": "minutos");
+    },
+
+    handleAjax: function (e, detail, sender) {
+
+      console.log(detail.response);
+
+    },
+
+    adicionarMamada: function () {
+        this.body = '{"dataHoraDaMamada":'+ this.dataDaMamada+ ' '+ this.horaDaMamada +', "mama":'+ this.mama+', "duracao":'+this.duracao+', "user":"mariaalice"}';
+        var ajax = document.querySelector('iron-ajax');
+        ajax.generateRequest();        
     }
 
   });
