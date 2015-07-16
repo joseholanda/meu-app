@@ -39,34 +39,38 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       color: #fff;
       width: 250px;
     }
+    label {
+      margin-left: 10px;
+    }
   </style>
   <template>
     <iron-ajax id="ajaxMamada" method="PUT" url="{{url}}" body='{{body}}' on-response="handleAjax" verbose></iron-ajax>
 
     <h2>Adicionar mamada</h2>
     
-    <label>Tempo da mamada: <span>{{tempoDaMamadaString}}</span></label> 
+    <paper-item >Tempo da mamada: <span>{{tempoDaMamadaString}}</span></paper-item >
     <paper-slider min="1" max="60" pin value="{{tempoDaMamada}}" on-value-change="mudaValor"/></paper-slider>
     
     <br/>
-    <label>Mama:</label>
+    <paper-item >
+      Mama:
+    </paper-item >
+
     <paper-radio-group selected="{{mama}}">
       <paper-radio-button name="E">Esquerda</paper-radio-button>
       <paper-radio-button name="D">Direita</paper-radio-button>
     </paper-radio-group>
     <br/> 
 
-    <label>Data:</label>
     <paper-item >
-      <paper-input type="text" value="{{dataDaMamada}}"></paper-input>
+      <paper-input floatingLabel label="Data" type="text" value="{{dataDaMamada}}"></paper-input>
     </paper-item>
 
-    <label>Hora de início:</label>
     <paper-item >
-      <paper-input type="text" value="{{horaDaMamada}}"></paper-input>
+      <paper-input type="text" label="Hora de início" floatingLabel value="{{horaDaMamada}}"></paper-input>
     </paper-item>
-    
 
+    <br/>
     <paper-button raised class="colored" role="button" on-click="adicionarMamada">
       <paper-ripple></paper-ripple>
       <iron-icon icon="check"></iron-icon> Adicionar
@@ -80,9 +84,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'meu-slider',
 
     properties: {
-      mama: String,
+      mama: {type:String, value: 'E'},
       dataDaMamada: {type:Date,value: new Date()},
-      horaDaMamada: {type:String,value: "19:50"},
+      horaDaMamada: {type:String,value: ""},
       tempoDaMamada: Number,
       tempoDaMamadaString : String,
       url:String,
@@ -95,9 +99,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
     ready: function() {
       console.log("-"+this.dataDaMamada)
-      this.dataDaMamada = this.formataData(new Date());
+      var dataAtual = new Date();
+      this.dataDaMamada = this.formataData(dataAtual);
       this.tempoDaMamada = 0;
       this.tempoDaMamadaString = '1:00 minuto';
+      var minutos = dataAtual.getMinutes()<10?'0'+dataAtual.getMinutes():dataAtual.getMinutes();
+      this.horaDaMamada = dataAtual.getHours() + ':' + minutos; 
 
 
     },
@@ -124,7 +131,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     handleAjax: function (e, detail, sender) {
 
-      console.log(detail.response);
+      console.log('oi -'+detail.response);
 
     },
 
@@ -140,6 +147,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         this.body = '{"dataHoraDaMamada": "'+ this.dataDaMamada+ ' '+ this.horaDaMamada +'", "mama":"'+ this.mama+'", "duracaoDaMamada":"'+this.tempoDaMamadaString.split(" ")[0] +'", "user":"mariaalice"}';
         this.url = 'http://localhost:9200/mamadas/mamada/mariaalice'+this.stringDateToMilis(this.dataDaMamada+ ' '+ this.horaDaMamada);
         this.$.ajaxMamada.generateRequest();
+        document.getElementById("listaMamadasAjax").generateRequest();
                 
     }
 

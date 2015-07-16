@@ -71,21 +71,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         <!-- Drawer Content -->
           <paper-menu class="list" attr-for-selected="data-route" selected="{{route}}" on-iron-select="onMenuSelect">
               <a data-route="home" href="/">
-                <iron-icon></iron-icon>
+                
                 <span>Gráficos</span>
               </a>
               <a data-route="amamentacao" href="/amamentacao">
-                <iron-icon></iron-icon>
+                
                 <span>Amamentação</span>
               </a>
 
               <a data-route="crescimento" href="/crescimento">
-                <iron-icon></iron-icon>
+                
                 <span>Crescimento</span>
               </a>
 
               <a data-route="diario" href="/diario">
-                <iron-icon></iron-icon>
+                
                 <span>Diário</span>
               </a>
           </paper-menu>
@@ -138,16 +138,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <section data-route="amamentacao">
              <paper-material elevation="1">
                 <meu-slider></meu-slider>
-
               </paper-material>   
-              <paper-material elevation="1">   
+              
                 <lista-mamadas url="http://localhost:9200/mamadas/mamada/_search" body='{"size": 500, "sort":[{"dataHoraDaMamada":{"order":"desc"}}],"query":{"term":{"user":"mariaalice"}}}'></lista-mamadas>
-              </paper-material >   
+              
             </section>
 
             <section data-route="crescimento">
               <paper-material elevation="1">
-                
+                <cadastro-crescimento></cadastro-crescimento>
               </paper-material>
               
             </section>
