@@ -16,6 +16,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
 <link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-request.html">
 
 <dom-module id="meu-slider">
   <style>
@@ -40,7 +41,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     }
   </style>
   <template>
-    <iron-ajax id="add" method="put" url="{{url}}" body='{{body}}' on-response="handleAjax"></iron-ajax>
+    <iron-ajax id="ajaxMamada" method="PUT" url="{{url}}" body='{{body}}' on-response="handleAjax" verbose></iron-ajax>
 
     <h2>Adicionar mamada</h2>
     
@@ -49,7 +50,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     
     <br/>
     <label>Mama:</label>
-    <paper-radio-group >
+    <paper-radio-group selected="{{mama}}">
       <paper-radio-button name="E">Esquerda</paper-radio-button>
       <paper-radio-button name="D">Direita</paper-radio-button>
     </paper-radio-group>
@@ -79,12 +80,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'meu-slider',
 
     properties: {
+      mama: String,
       dataDaMamada: {type:Date,value: new Date()},
       horaDaMamada: {type:String,value: "19:50"},
       tempoDaMamada: Number,
       tempoDaMamadaString : String,
-      url:{type:String,value:"http://localhost:9200/mamadas/mamada/"},
-      body: String
+      url:String,
+      body: String,
+      dataEmMilis: Object
 
     },
     domReady: function() {
@@ -95,6 +98,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.dataDaMamada = this.formataData(new Date());
       this.tempoDaMamada = 0;
       this.tempoDaMamadaString = '1:00 minuto';
+
 
     },
 
@@ -110,7 +114,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if(mm<10){
           mm='0'+mm
       } 
-      var data = dd+'/'+mm+'/'+yyyy;
+      var data = dd+'-'+mm+'-'+yyyy;
       return data;
     },
 
@@ -124,10 +128,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     },
 
+    stringDateToMilis: function (stringDate) {
+      var splitData = stringDate.split(" ");
+      var diaMesAno = splitData[0];
+      var horaMinuto = splitData[1];
+
+      return new Date(diaMesAno.split("-")[2],diaMesAno.split("-")[1],diaMesAno.split("-")[0],horaMinuto.split(":")[0],horaMinuto.split(":")[1],00).getTime();
+    },
+
     adicionarMamada: function () {
-        this.body = '{"dataHoraDaMamada":'+ this.dataDaMamada+ ' '+ this.horaDaMamada +', "mama":'+ this.mama+', "duracao":'+this.duracao+', "user":"mariaalice"}';
-        var ajax = document.querySelector('iron-ajax');
-        ajax.generateRequest();        
+        this.body = '{"dataHoraDaMamada": "'+ this.dataDaMamada+ ' '+ this.horaDaMamada +'", "mama":"'+ this.mama+'", "duracaoDaMamada":"'+this.tempoDaMamadaString.split(" ")[0] +'", "user":"mariaalice"}';
+        this.url = 'http://localhost:9200/mamadas/mamada/mariaalice'+this.stringDateToMilis(this.dataDaMamada+ ' '+ this.horaDaMamada);
+        this.$.ajaxMamada.generateRequest();
+                
     }
 
   });

@@ -20,6 +20,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       height: 400px;
       border-top: 1px solid #e5e5e5;
       border-bottom: 1px solid #e5e5e5;
+      border-right: 1px solid #e5e5e5;
     }
     .mama {
       color: red;
@@ -47,7 +48,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <paper-item-body two-line="">
               <div>Data: <span>[[item._source.dataHoraDaMamada]]</span></div>
-              <div secondary>Duração: <span>[[item._source.duracao]]</span></div>
+              <div secondary>Duração: <span>[[item._source.duracaoDaMamada]]</span></div>
             </paper-item-body>
             
           </paper-item>
@@ -66,7 +67,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     handleAjax: function (e, detail, sender) {
-      console.log(detail.response.hits.total);
+      console.log(detail.response.hits.hits);
       this.dados = detail.response.hits.hits;
     }
 
