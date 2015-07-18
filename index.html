@@ -136,12 +136,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             </section>
 
             <section data-route="amamentacao">
-             <paper-material elevation="1">
+              <paper-material elevation="1">
                 <meu-slider></meu-slider>
               </paper-material>   
-              
+              <paper-material elevation="1">
                 <lista-mamadas url="http://localhost:9200/mamadas/mamada/_search" body='{"size": 500, "sort":[{"dataHoraDaMamada":{"order":"desc"}}],"query":{"term":{"user":"mariaalice"}}}'></lista-mamadas>
-              
+               </paper-material> 
             </section>
 
             <section data-route="crescimento">

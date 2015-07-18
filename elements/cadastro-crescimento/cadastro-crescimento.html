@@ -16,11 +16,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
 <link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../../bower_components/iron-ajax/iron-request.html">
+<link rel="import" href="../../../bower_components/iron-input/iron-input.html">
+<link rel="import" href="../../../bower_components/paper-toast/paper-toast.html">
 
 <dom-module id="cadastro-crescimento">
   <style>
     :host {
       display: block;
+    }
+    paper-toast {
+      width: 100%;
+      text-align: center;
     }
   </style>
   <template>
@@ -41,14 +47,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <paper-input id="peso" floatingLabel label="Peso (g)" type="text" value="{{peso}}"></paper-input>
     <paper-input id="estatura" floatingLabel label="Estatura (cm)" type="text" value="{{estatura}}"></paper-input>
     <paper-input id="perimetroCefalico" floatingLabel label="Perímetro Cefálico" type="text" value="{{perimetroCefalico}}"></paper-input>
-    <paper-input id="dataDaAfericao" type="date" value="{{dataDaAfericao}}"></paper-input>
-    
+    <br/>
+    <input id="dataDaAfericao" type="date" value="{{dataDaAfericao}}" on-change="alteraData"></input>
+    <br/>
 
     <br/>
     <paper-button raised class="colored" role="button" on-click="addRegistroDeCrescimento">
       <paper-ripple></paper-ripple>
-      <iron-icon icon="check"></iron-icon> Adicionar
+      <iron-icon icon="check" on-click="addRegistroDeCrescimento"></iron-icon> Adicionar
     </paper-button>
+
+    <paper-toast id="toast1" text="{{mensagem}}"></paper-toast>
 
 
   </template>
@@ -67,27 +76,59 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       perimetroCefalico: String,
       dataDaAfericao: Date,
       url: String,
-      body: String
+      body: String,
+      mensagem: String
       
     },
     ready: function () {
       this.filhas = [{"nome":"Maria Cecília", "user":"mariacecilia"}, {"nome":"Maria Alice", "user":"mariaalice"}];
     },
+    getNomeDaFilhaSelecionada: function() {
+      for (var i = 0; i < this.filhas.length; i++) {
+        if (this.filha == this.filhas[i].user) {
+          return this.filhas[i].nome;
+        }
+      }
+    },
+    alteraData: function () {
+      console.log("propert"+this.dataDaAfericao);
+      console.log("value:"+this.$.dataDaAfericao.value);
+      this.dataDaAfericao = this.$.dataDaAfericao.value;
+    },
+    formataData: function(data) {
+      
+      var dd = data.getDate();
+      var mm = data.getMonth()+1;
 
+      var yyyy = data.getFullYear();
+      if(dd<10){
+          dd='0'+dd
+      } 
+      if(mm<10){
+          mm='0'+mm
+      } 
+      var data = dd+'/'+mm+'/'+yyyy;
+      return data;
+    },
     addRegistroDeCrescimento: function () {
-      this.url = 'http://localhost:9200/crescimento/crescimento/';
-      this.body = '{';
-
-/*
-{
-  "nome":"Maria Cecília", 
-    "dataDaMedicao":"26/12/2012",
-    "idade": "2m18d",
-    "peso": "5900",
-    "estatura":"56",
-    "perimetroCefalico":"40.5"
-}
-*/
+      this.url = 'http://localhost:9200/crescimento/crescimento/'+this.filha +''+(new Date(this.dataDaAfericao)).getTime();
+      /*this.body = '{"id":"'+this.filha +''+(new Date(this.dataDaAfericao)).getTime()+'",';*/
+      this.body = '{"nome":"'+this.getNomeDaFilhaSelecionada()+'",';
+      this.body += '"idade":"' + this.idade+'",';
+      this.body += '"peso":"' + this.peso+'",';
+      this.body += '"estatura":"' + this.estatura+'",';
+      this.body += '"perimetroCefalico":"' + this.perimetroCefalico+'",';
+      this.body += '"dataDaAfericao":"' + this.formataData(new Date(this.dataDaAfericao))+'"';
+      this.body += '}';
+      console.log(this.body);
+      try {
+        var status = this.$.ajaxCrescimento.generateRequest();
+        this.mensagem = "Registro adicionado com sucesso.";
+        this.$.toast1.show();
+      }catch (err) {
+        this.mensagem = "ERRO: " + err;
+      }
+      
 
     }
   });

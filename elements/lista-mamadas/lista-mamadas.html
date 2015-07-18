@@ -10,6 +10,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/iron-list/iron-list.html">
 <link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
 
 <dom-module id="lista-mamadas">
   <style>
@@ -21,6 +22,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       border-top: 1px solid #e5e5e5;
       border-bottom: 1px solid #e5e5e5;
       border-right: 1px solid #e5e5e5;
+    }
+    h2{
+      color: #ccc;
     }
     .mama {
       color: red;
@@ -41,15 +45,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
     <iron-ajax id="listaMamadasAjax" body='{{body}}' url="{{url}}" method="POST" handle-as="json" on-response="handleAjax" auto></iron-ajax>
+      
+      <h2> Histórico de mamadas </h2>
       <iron-list items="[[dados]]" as="item">
         <template >
           <paper-item>
             <span class="mama">[[item._source.mama]]</span>
 
-            <paper-item-body two-line="">
+            <paper-item-body two-line="" class="flex">
               <div>Data: <span>[[item._source.dataHoraDaMamada]]</span></div>
               <div secondary>Duração: <span>[[item._source.duracaoDaMamada]]</span></div>
             </paper-item-body>
+
+            <paper-icon-button icon="icons:create" on-click="editarMamada"></paper-icon-button>
             
           </paper-item>
         </template>
@@ -67,8 +75,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     handleAjax: function (e, detail, sender) {
-      console.log(detail.response.hits.hits);
       this.dados = detail.response.hits.hits;
+    }, 
+
+    editarMamada: function(e) {
+      
+      var mamada = e.model.item._source;
+      var slider = document.querySelector("meu-slider");
+      slider.mama = mamada.mama;
+      slider.dataDaMamada = mamada.dataHoraDaMamada.split(" ")[0];
+      slider.horaDaMamada = mamada.dataHoraDaMamada.split(" ")[1];
+      slider.tempoDaMamada = mamada.duracaoDaMamada.split(":")[0];
+      slider.tempoDaMamadaString = mamada.duracaoDaMamada;
+      
     }
 
   });
