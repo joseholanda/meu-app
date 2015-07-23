@@ -17,6 +17,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
 <link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../../bower_components/iron-ajax/iron-request.html">
+<link rel="import" href="../../../bower_components/paper-toast/paper-toast.html">
 
 <dom-module id="meu-slider">
   <style>
@@ -42,9 +43,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     label {
       margin-left: 10px;
     }
+    paper-toast /deep/ {
+      right: 10px;
+      left: auto;
+    }
   </style>
   <template>
-    <iron-ajax id="ajaxMamada" method="PUT" url="{{url}}" body='{{body}}' on-response="handleAjax" verbose></iron-ajax>
+     <paper-toast id="toast" text="{{mensagem}}"></paper-toast>
+    <iron-ajax id="ajaxMamada" method="PUT" url="{{url}}" body='{{body}}' on-error="error" on-response="handleAjax" verbose></iron-ajax>
 
     <h2>Adicionar mamada</h2>
     
@@ -76,6 +82,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <iron-icon icon="check"></iron-icon> Adicionar
     </paper-button>
 
+   
+
   </template>
 </dom-module>
 <script>
@@ -84,29 +92,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     is: 'meu-slider',
 
     properties: {
-      mama: {type:String, value: 'E'},
-      dataDaMamada: {type:Date,value: new Date()},
-      horaDaMamada: {type:String,value: ""},
+      mama: String,
+      dataDaMamada: Date,
+      horaDaMamada: String,
       tempoDaMamada: Number,
       tempoDaMamadaString : String,
       url:String,
       body: String,
-      dataEmMilis: Object
+      dataEmMilis: Object,
+      mensagem:String
 
     },
     domReady: function() {
       console.log("dom");
     },
     ready: function() {
-      console.log("-"+this.dataDaMamada)
       var dataAtual = new Date();
       this.dataDaMamada = this.formataData(dataAtual);
       this.tempoDaMamada = 0;
       this.tempoDaMamadaString = '1:00 minuto';
       var minutos = dataAtual.getMinutes()<10?'0'+dataAtual.getMinutes():dataAtual.getMinutes();
-      this.horaDaMamada = dataAtual.getHours() + ':' + minutos; 
-
-
+      this.horaDaMamada = dataAtual.getHours() + ':' + minutos;
     },
 
     formataData: function(data) {
@@ -129,10 +135,40 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.tempoDaMamadaString = ""+ this.tempoDaMamada +":00 " + (this.tempoDaMamada==1?"minuto": "minutos");
     },
 
+    error: function (e, detail, sender) {
+      console.log('ERRO-Response', detail.response, 'status', detail.xhr.status);
+    },
     handleAjax: function (e, detail, sender) {
+      if (detail.xhr.status==200 || detail.xhr.status == 201) {
+        
+        this.mensagem = "Registro adicionado com sucesso.";
+        this.atualizarOutrosCampos();
+      }else {
+        this.messagem = "ERRO: "+ detail.response;
+      }
+      this.$.toast.show();
+      
+      
+      /*console.log('Response', detail.response, 'status', detail.xhr.status);*/
+      /*setTimeout(this.atualizarOutrosCampos, 500);*/
+    },
 
-      console.log('oi -'+detail.response);
+    atualizarOutrosCampos: function() {
+      var listaMamadas = document.querySelector("lista-mamadas");  
+      listaMamadas.$.listaMamadasAjax.generateRequest();
 
+      var graficoMamadas = document.querySelector("highcharts-basicline");  
+      graficoMamadas.$.ajaxElastic.generateRequest();
+    },
+
+    atualizaListaMamadas: function () {
+      var listaMamadas = document.querySelector("lista-mamadas");  
+      listaMamadas.$.listaMamadasAjax.generateRequest();
+    },
+
+    atualizaGraficos: function() {
+      var graficoMamadas = document.querySelector("highcharts-basicline");  
+      graficoMamadas.$.ajaxElastic.generateRequest();
     },
 
     stringDateToMilis: function (stringDate) {
@@ -146,9 +182,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     adicionarMamada: function () {
         this.body = '{"dataHoraDaMamada": "'+ this.dataDaMamada+ ' '+ this.horaDaMamada +'", "mama":"'+ this.mama+'", "duracaoDaMamada":"'+this.tempoDaMamadaString.split(" ")[0] +'", "user":"mariaalice"}';
         this.url = 'http://localhost:9200/mamadas/mamada/mariaalice'+this.stringDateToMilis(this.dataDaMamada+ ' '+ this.horaDaMamada);
+        
+        
         this.$.ajaxMamada.generateRequest();
-        document.getElementById("listaMamadasAjax").generateRequest();
-                
     }
 
   });

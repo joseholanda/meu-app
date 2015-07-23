@@ -11,6 +11,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="../../../bower_components/paper-toast/paper-toast.html">
 
 <dom-module id="lista-mamadas">
   <style>
@@ -42,9 +45,22 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       font-weight: 400;
       line-height: 20px;
     }
+    .exclui{
+      color: #f44336;
+    }
+    .edit{
+      color: #03a9f4;
+    }
+    paper-toast /deep/ {
+      right: 10px;
+      left: auto;
+    }
+
   </style>
   <template>
     <iron-ajax id="listaMamadasAjax" body='{{body}}' url="{{url}}" method="POST" handle-as="json" on-response="handleAjax" auto></iron-ajax>
+    <iron-ajax id="listaMamadasAjaxDelete" url="{{urlDelete}}" method="DELETE" handle-as="json" on-response="handleAjaxDelete"></iron-ajax>
+      <paper-toast id="toast" text="{{mensagem}}"></paper-toast>
       
       <h2> Histórico de mamadas </h2>
       <iron-list items="[[dados]]" as="item">
@@ -57,11 +73,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <div secondary>Duração: <span>[[item._source.duracaoDaMamada]]</span></div>
             </paper-item-body>
 
-            <paper-icon-button icon="icons:create" on-click="editarMamada"></paper-icon-button>
+            <!--paper-icon-button icon="icons:create" on-click="editarMamada"></paper-icon-button-->
+            <paper-icon-button class="edit" mini icon="create" on-click="editarMamada"></paper-icon-button>
+            <paper-icon-button class="exclui" mini icon="clear" on-click="excluirMamada"></paper-icon-button>
             
           </paper-item>
         </template>
      </iron-list>
+     
   </template>
 </dom-module>
 <script>
@@ -71,11 +90,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     properties: {
       dados : Object,
       url: String,
-      body: String
+      body: String,
+      urlDelete: String,
+      mensagem: String
     },
 
     handleAjax: function (e, detail, sender) {
       this.dados = detail.response.hits.hits;
+    }, 
+    handleAjaxDelete: function (e, detail, sender) {
+      console.log('ok');
+      this.$.listaMamadasAjax.generateRequest();
     }, 
 
     editarMamada: function(e) {
@@ -87,7 +112,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       slider.horaDaMamada = mamada.dataHoraDaMamada.split(" ")[1];
       slider.tempoDaMamada = mamada.duracaoDaMamada.split(":")[0];
       slider.tempoDaMamadaString = mamada.duracaoDaMamada;
+    },
+    excluirMamada: function(e) {
       
+      if ((confirm("Confirma exclusão? \n" + e.model.item._source.dataHoraDaMamada)) == true) {
+        try{
+          var mamadaId = e.model.item._id;
+          this.urlDelete = 'http://localhost:9200/mamadas/mamada/'+mamadaId;
+          this.$.listaMamadasAjaxDelete.generateRequest();
+
+          this.mensagem = "Registro excluído com sucesso.";
+          this.$.toast.show();
+        }catch( err) {
+          this.mensagem = "ERRO: "+err;
+          this.$.toast.show();
+        }
+        
+      } else {
+          return;
+      }
     }
 
   });
