@@ -1,0 +1,214 @@
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+
+<link rel="import" href="../../../bower_components/paper-slider/paper-slider.html">
+<link rel="import" href="../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../../../bower_components/iron-ajax/iron-request.html">
+<link rel="import" href="../../../bower_components/paper-toast/paper-toast.html">
+
+<dom-module id="cadastro-mamadas">
+  <style>
+    :host {
+     
+      @apply(--layout-vertical);
+    }
+    paper-slider{
+      width:100%;
+    }
+    .linha {
+      @apply(--layout-horizontal);
+      @apply(--layout-wrap);
+    }
+    h2{
+      color: #ccc;
+    }
+    .colored {
+      background: #4285f4;
+      color: #fff;
+      width: 250px;
+    }
+    label {
+      margin-left: 10px;
+    }
+    paper-toast /deep/ {
+      right: 10px;
+      left: auto;
+    }
+  </style>
+  <template>
+     <paper-toast id="toast" text="{{mensagem}}"></paper-toast>
+    <iron-ajax id="ajaxMamada" method="PUT" url="{{url}}" body='{{body}}' on-error="error" on-response="handleAjax" ></iron-ajax>
+    <iron-ajax id="clearCacheElastic" method="POST" url="http://localhost:9200/_cache/clear"></iron-ajax>
+    <paper-item>
+      <paper-icon-button mini icon="arrow-back" on-click="voltarParaListaDeMamadas"></paper-icon-button>
+    </paper-item>
+    
+    <h2>{{titulo}}</h2>
+    
+    <paper-item >Tempo da mamada: <span>{{tempoDaMamadaString}}</span></paper-item >
+    <paper-slider min="1" max="60" pin value="{{tempoDaMamada}}" on-value-change="mudaValor"/></paper-slider>
+    
+    <br/>
+    <paper-item >
+      Mama:
+    </paper-item >
+
+    <paper-radio-group selected="{{mama}}">
+      <paper-radio-button name="E">Esquerda</paper-radio-button>
+      <paper-radio-button name="D">Direita</paper-radio-button>
+    </paper-radio-group>
+    <br/> 
+
+    <paper-item >
+      <paper-input floatingLabel label="Data" type="text" value="{{dataDaMamada}}"></paper-input>
+    </paper-item>
+
+    <paper-item >
+      <paper-input type="text" label="Hora de início" floatingLabel value="{{horaDaMamada}}"></paper-input>
+    </paper-item>
+
+    <br/>
+    <paper-button raised class="colored" role="button" on-click="adicionarMamada">
+      <paper-ripple></paper-ripple>
+      <iron-icon icon="check"></iron-icon> Adicionar
+    </paper-button>
+
+   
+
+  </template>
+</dom-module>
+<script>
+(function() {
+  Polymer({
+    is: 'cadastro-mamadas',
+
+    properties: {
+      mama: String,
+      dataDaMamada: Date,
+      horaDaMamada: String,
+      tempoDaMamada: Number,
+      tempoDaMamadaString : String,
+      url:String,
+      body: String,
+      dataEmMilis: Object,
+      mensagem:String,
+      _id: String
+
+    },
+    domReady: function() {
+      console.log("dom");
+    },
+    ready: function() {
+      var dataAtual = new Date();
+      this.dataDaMamada = this.formataData(dataAtual);
+      this.tempoDaMamada = 0;
+      this.tempoDaMamadaString = '1:00 minuto';
+      var minutos = dataAtual.getMinutes()<10?'0'+dataAtual.getMinutes():dataAtual.getMinutes();
+      this.horaDaMamada = dataAtual.getHours() + ':' + minutos;
+      this._id = null;
+      this.titulo = "Adicionar mamada";
+    },
+
+    formataData: function(data) {
+      
+      var dd = data.getDate();
+      var mm = data.getMonth()+1; 
+
+      var yyyy = data.getFullYear();
+      if(dd<10){
+          dd='0'+dd
+      } 
+      if(mm<10){
+          mm='0'+mm
+      } 
+      var data = dd+'-'+mm+'-'+yyyy;
+      return data;
+    },
+
+    mudaValor: function () {
+      this.tempoDaMamadaString = " "+ this.tempoDaMamada +":00 " + (this.tempoDaMamada==1?"minuto": "minutos");
+    },
+
+    error: function (e, detail, sender) {
+      console.log('ERRO-Response', detail.response, 'status', detail.xhr.status);
+    },
+    handleAjax: function (e, detail, sender) {
+      if (detail.xhr.status==200 || detail.xhr.status == 201) {
+        
+        this.mensagem = "Registro adicionado com sucesso.";
+        this.atualizarOutrosCampos();
+      }else {
+        this.messagem = "ERRO: "+ detail.response;
+      }
+      this.$.toast.show();
+      
+      
+      /*console.log('Response', detail.response, 'status', detail.xhr.status);*/
+      /*setTimeout(this.atualizarOutrosCampos, 500);*/
+    },
+
+    atualizarOutrosCampos: function() {
+
+      this.$.clearCacheElastic.generateRequest();
+
+      var listaMamadas = document.querySelector("lista-mamadas");  
+      listaMamadas.$.listaMamadasAjax.generateRequest();
+
+      var graficoMamadas = document.querySelector("highcharts-basicline");  
+      graficoMamadas.$.ajaxElastic.generateRequest();
+    },
+
+    atualizaListaMamadas: function () {
+      var listaMamadas = document.querySelector("lista-mamadas");  
+      listaMamadas.$.listaMamadasAjax.generateRequest();
+    },
+
+    atualizaGraficos: function() {
+      var graficoMamadas = document.querySelector("highcharts-basicline");  
+      graficoMamadas.$.ajaxElastic.generateRequest();
+    },
+
+    stringDateToMilis: function (stringDate) {
+      var splitData = stringDate.split(" ");
+      var diaMesAno = splitData[0];
+      var horaMinuto = splitData[1];
+
+      return new Date(diaMesAno.split("-")[2],diaMesAno.split("-")[1],diaMesAno.split("-")[0],horaMinuto.split(":")[0],horaMinuto.split(":")[1],00).getTime();
+    },
+
+    adicionarMamada: function () {
+        this.body = '{"dataHoraDaMamada": "'+ this.dataDaMamada+ ' '+ this.horaDaMamada +'", "mama":"'+ this.mama+'", "duracaoDaMamada":"'+this.tempoDaMamadaString.split(" ")[0] +'", "user":"mariaalice"}';
+        var urlOriginal = this.url;
+        var inicio = this.url.search('_search');
+        var url = this.url.substring(0,inicio);
+        if (this._id != null) {
+          this.url = url+this._id;
+        }else {
+          this.url = url+(JSON.parse(this.body).user)+this.stringDateToMilis(this.dataDaMamada+ ' '+ this.horaDaMamada);  
+        }
+        
+        this.$.ajaxMamada.generateRequest();
+        this._id = null;
+        this.url = urlOriginal;
+    },
+    voltarParaListaDeMamadas: function() {
+      var pages = document.querySelector('#cadastro-mamadas-pages');
+      pages.selectPrevious();
+    }
+
+  });
+})();
+</script>

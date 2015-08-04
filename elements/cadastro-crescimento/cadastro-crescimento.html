@@ -31,7 +31,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   </style>
   <template>
     
-    <iron-ajax id="ajaxCrescimento" method="PUT" url='{{url}}' body='{{body}}' on-response="handleAjax" verbose></iron-ajax>
+    <iron-ajax id="ajaxCrescimento" method="PUT" url='{{url}}' body='{{body}}' on-response="handleAjax"></iron-ajax>
 
     <h2>Registrar crescimento</h2>
     
@@ -111,7 +111,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       return data;
     },
     addRegistroDeCrescimento: function () {
-      this.url = 'http://192.168.25.2:9200/crescimento/crescimento/'+this.filha +''+(new Date(this.dataDaAfericao)).getTime();
+      this.url += this.filha +''+(new Date(this.dataDaAfericao)).getTime();
       /*this.body = '{"id":"'+this.filha +''+(new Date(this.dataDaAfericao)).getTime()+'",';*/
       this.body = '{"nome":"'+this.getNomeDaFilhaSelecionada()+'",';
       this.body += '"idade":"' + this.idade+'",';

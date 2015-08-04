@@ -119,23 +119,26 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <highcharts-basicline 
                         title="Nº de mamadas por mês" subtitle="até 12 meses" ytitle='Nº de mamadas'
                         xcategories='[ "1 mês", "2 meses", "3 meses", "4 meses", "5 meses","6 meses", "7 meses", "8 meses", "9 meses", "10 meses", "11 meses", "12 meses" ]'
-                        url="http://192.168.25.2:9200/mamadas/mamada/_search" body='{"aggs":{"messages":{"filters":{"filters":{"mariacecilia":{"term":{"user":"mariacecilia"}},"mariaalice":{"term":{"user":"mariaalice"}}}},"aggs":{"mamadaMensal":{"date_histogram":{"field":"dataHoraDaMamada","interval":"month","format":"MM/yyyy","min_doc_count" : 0}}}}}}' method="post">
+                        url="http://172.17.73.9:9200/mamadas/mamada/_search" body='{"aggs":{"messages":{"filters":{"filters":{"mariacecilia":{"term":{"user":"mariacecilia"}},"mariaalice":{"term":{"user":"mariaalice"}}}},"aggs":{"mamadaMensal":{"date_histogram":{"field":"dataHoraDaMamada","interval":"month","format":"MM/yyyy","min_doc_count" : 0}}}}}}' method="post">
                 </highcharts-basicline>
               </paper-material>
             </section>
 
             <section data-route="amamentacao">
-              <paper-material elevation="1">
-                <meu-slider></meu-slider>
-              </paper-material>   
-              <paper-material elevation="1">
-                <lista-mamadas url="http://192.168.25.2:9200/mamadas/mamada/_search" body='{"size": 500, "sort":[{"dataHoraDaMamada":{"order":"desc"}}],"query":{"term":{"user":"mariaalice"}}}'></lista-mamadas>
-               </paper-material> 
+              <iron-pages id="cadastro-mamadas-pages" selected="1">
+                <paper-material elevation="1">
+                  <cadastro-mamadas url="http://172.17.73.9:9200/mamadas/mamada/_search"></cadastro-mamadas>
+                </paper-material>   
+                <paper-material elevation="1">
+                  <lista-mamadas url="http://172.17.73.9:9200/mamadas/mamada/_search" body='{"size": 500, "sort":[{"dataHoraDaMamada":{"order":"desc"}}],"query":{"term":{"user":"mariaalice"}}}'></lista-mamadas>
+                 </paper-material> 
+              </iron-pages>
+              
             </section>
 
             <section data-route="crescimento">
               <paper-material elevation="1">
-                <cadastro-crescimento></cadastro-crescimento>
+                <cadastro-crescimento url="http://172.17.73.9:9200/crescimento/crescimento/"></cadastro-crescimento>
               </paper-material>
               
             </section>
