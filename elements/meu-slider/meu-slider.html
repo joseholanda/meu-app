@@ -100,7 +100,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       url:String,
       body: String,
       dataEmMilis: Object,
-      mensagem:String
+      mensagem:String,
+      _id: String
 
     },
     domReady: function() {
@@ -113,6 +114,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       this.tempoDaMamadaString = '1:00 minuto';
       var minutos = dataAtual.getMinutes()<10?'0'+dataAtual.getMinutes():dataAtual.getMinutes();
       this.horaDaMamada = dataAtual.getHours() + ':' + minutos;
+      this._id = null;
     },
 
     formataData: function(data) {
@@ -132,7 +134,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     },
 
     mudaValor: function () {
-      this.tempoDaMamadaString = ""+ this.tempoDaMamada +":00 " + (this.tempoDaMamada==1?"minuto": "minutos");
+      this.tempoDaMamadaString = " "+ this.tempoDaMamada +":00 " + (this.tempoDaMamada==1?"minuto": "minutos");
     },
 
     error: function (e, detail, sender) {
@@ -181,10 +183,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     adicionarMamada: function () {
         this.body = '{"dataHoraDaMamada": "'+ this.dataDaMamada+ ' '+ this.horaDaMamada +'", "mama":"'+ this.mama+'", "duracaoDaMamada":"'+this.tempoDaMamadaString.split(" ")[0] +'", "user":"mariaalice"}';
-        this.url = 'http://localhost:9200/mamadas/mamada/mariaalice'+this.stringDateToMilis(this.dataDaMamada+ ' '+ this.horaDaMamada);
-        
+        if (this._id != null) {
+          this.url = 'http://192.168.25.2:9200/mamadas/mamada/'+this._id;
+        }else {
+          this.url = 'http://192.168.25.2:9200/mamadas/mamada/mariaalice'+this.stringDateToMilis(this.dataDaMamada+ ' '+ this.horaDaMamada);  
+        }
         
         this.$.ajaxMamada.generateRequest();
+        this._id = null;
     }
 
   });

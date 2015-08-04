@@ -61,7 +61,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <iron-ajax id="listaMamadasAjax" body='{{body}}' url="{{url}}" method="POST" handle-as="json" on-response="handleAjax" auto></iron-ajax>
     <iron-ajax id="listaMamadasAjaxDelete" url="{{urlDelete}}" method="DELETE" handle-as="json" on-response="handleAjaxDelete"></iron-ajax>
       <paper-toast id="toast" text="{{mensagem}}"></paper-toast>
-      
+
       <h2> Histórico de mamadas </h2>
       <iron-list items="[[dados]]" as="item">
         <template >
@@ -80,6 +80,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </paper-item>
         </template>
      </iron-list>
+
      
   </template>
 </dom-module>
@@ -107,6 +108,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       
       var mamada = e.model.item._source;
       var slider = document.querySelector("meu-slider");
+      slider._id = e.model.item._id;
       slider.mama = mamada.mama;
       slider.dataDaMamada = mamada.dataHoraDaMamada.split(" ")[0];
       slider.horaDaMamada = mamada.dataHoraDaMamada.split(" ")[1];
@@ -118,7 +120,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       if ((confirm("Confirma exclusão? \n" + e.model.item._source.dataHoraDaMamada)) == true) {
         try{
           var mamadaId = e.model.item._id;
-          this.urlDelete = 'http://localhost:9200/mamadas/mamada/'+mamadaId;
+          this.urlDelete = 'http://192.168.25.2:9200/mamadas/mamada/'+mamadaId;
           this.$.listaMamadasAjaxDelete.generateRequest();
 
           this.mensagem = "Registro excluído com sucesso.";
